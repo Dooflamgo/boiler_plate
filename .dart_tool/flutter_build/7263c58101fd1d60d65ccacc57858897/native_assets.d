@@ -1,0 +1,1 @@
+ /Users/aldrinpogi/Documents/Github/boiler_plate/.dart_tool/flutter_build/7263c58101fd1d60d65ccacc57858897/native_assets.yaml: 
