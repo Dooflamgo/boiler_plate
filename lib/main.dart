@@ -1,5 +1,6 @@
+import 'package:boiler_plate/pages/home_page.dart';
 import 'package:boiler_plate/pages/profile_page.dart';
-import 'package:boiler_plate/pages/landing_page.dart';
+import 'package:boiler_plate/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,11 +16,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Lato',
-        primaryColor: Colors.blue,
+        primaryColor: Colors.blueAccent,
       ),
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),
+        '/login': (context) => const LoginPage(),
         '/profile': (context) => const ProfilePage(),
       },
     );

@@ -11,6 +11,12 @@ class ProfilePage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 80,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -18,7 +24,7 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 10),
             const CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage('assets/images/profile.png'),
+              backgroundImage: AssetImage('assets/images/'),
             ),
             const SizedBox(height: 20),
             GestureDetector(
