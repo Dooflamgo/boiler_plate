@@ -1,6 +1,12 @@
 import 'package:boiler_plate/pages/home_page.dart';
 import 'package:boiler_plate/pages/profile_page.dart';
 import 'package:boiler_plate/pages/login_page.dart';
+import 'package:boiler_plate/pages/hoodie_page.dart';
+import 'package:boiler_plate/pages/accessories_page.dart';
+import 'package:boiler_plate/pages/jacket_page.dart';
+import 'package:boiler_plate/pages/shoes_page.dart';
+import 'package:boiler_plate/pages/shorts_page.dart';
+import 'package:boiler_plate/pages/windbreaker_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -23,6 +29,12 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/login': (context) => const LoginPage(),
         '/profile': (context) => const ProfilePage(),
+        '/hoodies': (context) => const HoodiePage(),
+        '/accessories': (context) => const AccessoriesPage(),
+        '/jackets': (context) => const JacketPage(),
+        '/shoes': (context) => const ShoesPage(),
+        '/shorts': (context) => const ShortsPage(),
+        '/windbreakers': (context) => const WindbreakerPage(),
       },
     );
   }

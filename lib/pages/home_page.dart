@@ -8,19 +8,19 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Category> categories = [
-      Category(name: 'Hoodies', imagePath: 'assets/images/'),
-      Category(name: 'Windbreakers', imagePath: 'assets/images/'),
-      Category(name: 'Shorts', imagePath: 'assets/images/'),
-      Category(name: 'Jacket', imagePath: 'assets/images/'),
-      Category(name: 'Shoes', imagePath: 'assets/images/'),
-      Category(name: 'Accessories', imagePath: 'assets/images/'),
+      Category(name: 'Hoodies', imagePath: 'assets/images/jjk_hoodie.jpeg', route: '/hoodies'),
+      Category(name: 'Windbreakers', imagePath: 'assets/images/windbreaker.jpeg', route: '/windbreakers'),
+      Category(name: 'Shorts', imagePath: 'assets/images/shorts.jpeg', route: '/shorts'),
+      Category(name: 'Jackets', imagePath: 'assets/images/jacket.jpeg', route: '/jackets'),
+      Category(name: 'Shoes', imagePath: 'assets/images/Shoes.jpeg', route: '/shoes'),
+      Category(name: 'Accessories', imagePath: 'assets/images/bag.jpeg', route: '/accessories'),
     ];
 
     return Scaffold(
       appBar: appBar(context),
       backgroundColor: Colors.white,
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
         children: [
           const Text(
             'Shop by Category',
@@ -45,7 +45,7 @@ class HomePage extends StatelessWidget {
               final category = categories[index];
               return InkWell(
                 onTap: () {
-                  print('${category.name} clicked');
+                  Navigator.pushNamed(context, category.route, arguments: category.name);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(10),
