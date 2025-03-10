@@ -1,7 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../api/api_auth.dart';
+import '../widgets/dialog_info.dart';
+import '../widgets/dialog_loading.dart';
+import '../api/api_profile.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String _name = "Loading...";
+  String _email = "Loading...";
+  String? _profilePictureUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final profileData = await ProfileService.fetchUserProfile();
+      if (!mounted) return;
+
+      setState(() {
+        _name = profileData?["name"] ?? "Unknown User";
+        _email = profileData?["email"] ?? "No email available";
+        _profilePictureUrl = profileData?["profile_picture_url"];
+      });
+    } catch (e) {
+      print("Error fetching user profile: $e");
+    }
+  }
+
+  Future<void> _logout() async {
+    DialogInfo(
+      headerText: "Log Out?",
+      subText: "Are you sure you want to quit?",
+      confirmText: "Confirm",
+      onCancel: () => Navigator.pop(context),
+      onConfirm: () async {
+        Navigator.pop(context);
+        DialogLoading(subtext: "Logging out...").buildLoadingScreen(context);
+
+        String logoutStatus = await LogoutUser().logOut();
+        if (!mounted) return;
+        Navigator.pop(context);
+        Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+        if (logoutStatus == 'success') {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('auth_token');
+          await prefs.remove('name');
+          await prefs.remove('email');
+          await prefs.remove('phone');
+        } else {
+          DialogInfo(
+            headerText: "Error",
+            subText: "Logout failed. Please try again.",
+            confirmText: "OK",
+            onConfirm: () => Navigator.of(context, rootNavigator: true).pop(),
+            onCancel: () => Navigator.of(context, rootNavigator: true).pop(),
+          ).build(context);
+        }
+      },
+    ).build(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,20 +79,16 @@ class ProfilePage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 80,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          },
-        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 10),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage('assets/images/'),
+              backgroundImage: _profilePictureUrl != null && _profilePictureUrl!.isNotEmpty
+                  ? NetworkImage(_profilePictureUrl!) as ImageProvider
+                  : const AssetImage('assets/icons/profile.png'),
             ),
             const SizedBox(height: 20),
             GestureDetector(
@@ -41,37 +105,25 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'John Abalos',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          _name,
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          'Johnabalos@gmail.com',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '0998****146',
-                          style: TextStyle(color: Colors.grey),
+                          _email,
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ],
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            ...['Address', 'Wishlist', 'Payment', 'Help', 'Support'].map((item) => GestureDetector(
-              onTap: () {},
+            GestureDetector(
+              onTap: _logout,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -81,24 +133,10 @@ class ProfilePage extends StatelessWidget {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                  children: const [
+                    Text('Sign Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    Icon(Icons.logout, size: 16, color: Colors.red),
                   ],
-                ),
-              ),
-            )).toList(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: TextButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all(Colors.red.withOpacity(0.1)),
-                ),
-                child: const Text(
-                  'Sign Out',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

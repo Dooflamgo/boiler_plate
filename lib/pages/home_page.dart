@@ -1,77 +1,102 @@
-import 'package:boiler_plate/models/category_model.dart';
+import 'package:boiler_plate/models/product_model.dart';
+import 'package:boiler_plate/pages/product_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../api/api_categories.dart';
+import '../models/category_model.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Category>? _categories;
+  bool _isLoading = true;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      print("Fetching categories from API...");
+      final List<Category>? categoryList = await CategoryService.fetchCategories();
+      print("Categories fetched: ${categoryList?.length}");
+
+      if (!mounted) return;
+
+      setState(() {
+        _categories = categoryList ?? [];
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching categories: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Category> categories = [
-      Category(name: 'Hoodies', imagePath: 'assets/images/jjk_hoodie.jpeg', route: '/hoodies'),
-      Category(name: 'Windbreakers', imagePath: 'assets/images/windbreaker.jpeg', route: '/windbreakers'),
-      Category(name: 'Shorts', imagePath: 'assets/images/shorts.jpeg', route: '/shorts'),
-      Category(name: 'Jackets', imagePath: 'assets/images/jacket.jpeg', route: '/jackets'),
-      Category(name: 'Shoes', imagePath: 'assets/images/Shoes.jpeg', route: '/shoes'),
-      Category(name: 'Accessories', imagePath: 'assets/images/bag.jpeg', route: '/accessories'),
-    ];
-
     return Scaffold(
-      appBar: appBar(context),
-      backgroundColor: Colors.white,
-      body: ListView(
-        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-        children: [
-          const Text(
-            'Shop by Category',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 17),
-          GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
+      appBar: AppBar(
+        title: const Text('Categories'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _fetchCategories,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _categories == null || _categories!.isEmpty
+            ? const Center(child: Text("No categories available"))
+            : Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
               childAspectRatio: 0.7,
             ),
-            itemCount: categories.length,
+            itemCount: _categories!.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
+              final category = _categories![index];
               return InkWell(
                 onTap: () {
-                  Navigator.pushNamed(context, category.route, arguments: category.name);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductPage(category: category),
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color:Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            category.imagePath,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                      category.image.isNotEmpty
+                          ? Image.network(
+                        category.image,
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      )
+                          : const Icon(Icons.image_not_supported, size: 80),
+                      const SizedBox(height: 10),
                       Text(
                         category.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -79,43 +104,8 @@ class HomePage extends StatelessWidget {
               );
             },
           ),
-        ],
-      ),
-    );
-  }
-
-  AppBar appBar(BuildContext context) {
-    return AppBar(
-      title: const Text(
-        'Welcome!',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
         ),
       ),
-      backgroundColor: Colors.white,
-      elevation: 0.0,
-      centerTitle: true,
-      actions: [
-        GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, '/login');
-          },
-          child: Container(
-            margin: const EdgeInsets.all(12),
-            alignment: Alignment.center,
-            child: SvgPicture.asset(
-              'assets/icons/mdi_account-outline.svg',
-              height: 28,
-              width: 28,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(7),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

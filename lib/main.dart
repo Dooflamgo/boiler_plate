@@ -1,16 +1,35 @@
+import 'package:boiler_plate/auth_check.dart';
 import 'package:boiler_plate/pages/home_page.dart';
+import 'package:boiler_plate/pages/page_handler.dart';
 import 'package:boiler_plate/pages/profile_page.dart';
 import 'package:boiler_plate/pages/login_page.dart';
-import 'package:boiler_plate/pages/hoodie_page.dart';
-import 'package:boiler_plate/pages/accessories_page.dart';
-import 'package:boiler_plate/pages/jacket_page.dart';
-import 'package:boiler_plate/pages/shoes_page.dart';
-import 'package:boiler_plate/pages/shorts_page.dart';
-import 'package:boiler_plate/pages/windbreaker_page.dart';
+import 'package:boiler_plate/widgets/index_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+// Global Navigator Key
+final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+  await Hive.initFlutter();
+  await Hive.openBox("myRegistrationBox");
+  await Hive.openBox("sessions");
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => PageIndexProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,22 +38,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: globalNavigatorKey, // Add this line
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Lato',
-        primaryColor: Colors.blueAccent,
+        primaryColor: Colors.black,
       ),
-      initialRoute: '/',
+      initialRoute: '/auth',
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => const PageHandler(),
+        '/auth': (context) => const AuthCheck(),
         '/login': (context) => const LoginPage(),
         '/profile': (context) => const ProfilePage(),
-        '/hoodies': (context) => const HoodiePage(),
-        '/accessories': (context) => const AccessoriesPage(),
-        '/jackets': (context) => const JacketPage(),
-        '/shoes': (context) => const ShoesPage(),
-        '/shorts': (context) => const ShortsPage(),
-        '/windbreakers': (context) => const WindbreakerPage(),
       },
     );
   }
