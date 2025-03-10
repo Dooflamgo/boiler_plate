@@ -1,0 +1,1 @@
+ D:\\Flutter\ Proj\\boiler_plate\\mobile\\boiler_plate\\.dart_tool\\flutter_build\\541e9d0968a46af5c77f17312df6cf69\\native_assets.yaml: 
