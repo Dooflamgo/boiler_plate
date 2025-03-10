@@ -52,11 +52,18 @@ class ProductDetailsPage extends StatelessWidget {
               // ✅ Product Name & Subtitle
               Text(
                 product.name,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Text(
                 "Stock: ${product.stock.toString()}",
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+
+              const SizedBox(height: 15),
+
+              Text(
+                "Description: ${product.description}", 
+                style: const TextStyle(fontSize: 20),
               ),
 
               const SizedBox(height: 15),
